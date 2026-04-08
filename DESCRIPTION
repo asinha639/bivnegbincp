@@ -1,0 +1,37 @@
+Package: bivnegbincp
+Title: Bayesian Change Point Detection for Bivariate Negative Binomial Data
+Version: 1.0.0
+Authors@R: 
+    c(
+      person("Arnoneel", "Sinha", email = "arsinha@augusta.edu", role = c("aut", "cre")),
+      person("Kathryn", "Sinha", role = "aut"),
+      person("Jie", "Chen", role = "aut")
+    )
+Description: This package implements a Bayesian change point detection method 
+    for sequences of bivariate Negative Binomial observations, extending earlier 
+    work on bivariate Normal data. The methodology is motivated by the need to 
+    jointly analyze correlated count time series, such as COVID-19 incidence 
+    and death data.
+    The package provides single change point detection under both constant prior 
+    and Dirichlet prior formulations, along with multiple change point detection 
+    using a binary segmentation procedure. The approach models the joint 
+    distribution of bivariate count observations and identifies structural 
+    changes through probabilistic inference.
+    The methods are particularly suited for applications involving overdispersed 
+    and correlated count data where simultaneous shifts may occur across variables. 
+    Visualization tools are included to aid in interpreting detected change points.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+VignetteBuilder: knitr
+Imports:
+    magrittr,
+    plotly,
+    Rmpfr,
+    openxlsx
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

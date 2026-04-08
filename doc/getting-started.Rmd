@@ -1,0 +1,57 @@
+---
+title: "Getting started with bivnegbincp"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with bivnegbincp}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+`bivnegbincp` implements Bayesian multiple change-point detection for bivariate negative binomial count data.
+
+## Load the package
+```{r}
+library(bivnegbincp)
+```
+
+## Simulated example
+```{r}
+set.seed(123)
+
+x1 <- c(
+  rnbinom(50, size = 10, mu = 5),
+  rnbinom(25, size = 10, mu = 12),
+  rnbinom(25, size = 10, mu = 20)
+)
+
+x2 <- c(
+  rnbinom(50, size = 8, mu = 4),
+  rnbinom(25, size = 8, mu = 10),
+  rnbinom(25, size = 8, mu = 18)
+)
+```
+
+## Run change-point detection
+```{r}
+res <- bivnegbin_singlecp(
+  x1 = x1,
+  x2 = x2
+)
+```
+
+
+## Inspect output
+```{r}
+names(res)
+str(res, max.level = 1)
+```
+

@@ -1,0 +1,52 @@
+
+# bivnegbincp
+
+`bivnegbincp` provides Bayesian multiple change-point detection for
+bivariate negative binomial count data.
+
+## Installation
+
+You can install the development version of bivnegbincp like so:
+
+``` r
+# install.packages("remotes")
+# remotes::install_github("asinha639/bivnegbincp")
+```
+
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+``` r
+library(bivnegbincp)
+
+set.seed(123)
+
+x1 <- c(
+  rnbinom(50, size = 10, mu = 5),
+  rnbinom(25, size = 10, mu = 12),
+  rnbinom(25, size = 10, mu = 20)
+)
+
+x2 <- c(
+  rnbinom(50, size = 8, mu = 4),
+  rnbinom(25, size = 8, mu = 10),
+  rnbinom(25, size = 8, mu = 18)
+)
+
+res <- bivnegbin_singlecp(
+  x1 = x1,
+  x2 = x2
+)
+
+str(res, max.level = 1)
+#> 'data.frame':    1 obs. of  3 variables:
+#>  $ post_prob: num 0.226
+#>  $ cp_index : int 50
+#>  $ cp_status: num 1
+```
+
+## Output
+
+The function returns model output and detected change-point information
+for the two count series.
