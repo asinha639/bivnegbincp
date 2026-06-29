@@ -139,117 +139,40 @@ bivnegbin_singlecp <- function(x1,
 }
 
 .bivnegbin_singlecp_constant <- function(x1, x2, kappa_const = 1) {
-  n <- length(x1)
-  post_prob <- c()
-  cp_status <- 1
-  
-  for (tau in 1:(n - 1)) {
-    term_11 <- c()
-    term_21 <- c()
-    
-    for (j in 0:(sum(x1[1:tau]) - 1)) {
-      term_11[j + 1] <- (sum(x1[1:tau]) - j) /
-        ((tau * kappa_const) + sum(x1[1:tau]) + 1 - j)
-    }
-    
-    term1 <- (1 / (tau * kappa_const + 1)) *
-      ((gamma(Rmpfr::mpfr(sum(x1[1:tau]) + tau * kappa_const + 2, precBits = 16)) *
-          gamma(Rmpfr::mpfr(sum(x2[1:tau]) + 1, precBits = 16))) /
-         gamma(Rmpfr::mpfr(sum(x2[1:tau]) + sum(x1[1:tau]) + tau * kappa_const + 3,
-                           precBits = 16))) *
-      prod(Rmpfr::mpfr(term_11, precBits = 16))
-    
-    for (j in 0:(sum(x1[(tau + 1):n]) - 1)) {
-      term_21[j + 1] <- (sum(x1[(tau + 1):n]) - j) /
-        (((n - tau) * kappa_const) + sum(x1[(tau + 1):n]) + 1 - j)
-    }
-    
-    term2 <- (1 / ((n - tau) * kappa_const + 1)) *
-      ((gamma(Rmpfr::mpfr(sum(x1[(tau + 1):n]) + (n - tau) * kappa_const + 2,
-                          precBits = 16)) *
-          gamma(Rmpfr::mpfr(sum(x2[(tau + 1):n]) + 1, precBits = 16))) /
-         gamma(Rmpfr::mpfr(sum(x2[(tau + 1):n]) + sum(x1[(tau + 1):n]) +
-                             (n - tau) * kappa_const + 3,
-                           precBits = 16))) *
-      prod(Rmpfr::mpfr(term_21, precBits = 16))
-    
-    post_prob[tau] <- term1 * term2
-  }
-  
-  post_prob <- Rmpfr::mpfr2array(post_prob, dim = length(post_prob))
-  
-  if (sum(post_prob) > 0) {
-    post_prob <- as.numeric(post_prob / sum(post_prob))
-    cp_index <- which.max(post_prob)
-    
-    if (length(cp_index) > 0) {
-      if (cp_index == 1 || cp_index == 2 || cp_index == n || cp_index == (n - 1)) {
-        cp_status <- 0
-      }
-      return(data.frame(post_prob = max(post_prob), cp_index = cp_index, cp_status = cp_status))
-    }
-    
+  res <- bnb_singlecp_constant_cpp(
+    x1 = as.numeric(x1),
+    x2 = as.numeric(x2),
+    kappa_const = kappa_const
+  )
+
+  if (is.na(res$cp_index) || is.na(res$max_post_prob)) {
     return(NA)
   }
-  
-  NA
+
+  data.frame(
+    post_prob = res$max_post_prob,
+    cp_index = res$cp_index,
+    cp_status = res$cp_status
+  )
 }
 
 .bivnegbin_singlecp_dirichlet <- function(x1, x2, v1 = 2, v2 = 1, v3 = 1, kappa_const = 1) {
-  n <- length(x1)
-  post_prob <- c()
-  cp_status <- 1
-  
-  for (tau in 1:(n - 1)) {
-    term_11 <- c()
-    term_21 <- c()
-    
-    for (j in 0:(sum(x1[1:tau]) + v1 - 2)) {
-      term_11[j + 1] <- (sum(x1[1:tau]) + v1 - 1 - j) /
-        ((tau * kappa_const) + sum(x1[1:tau]) - 1 - j + v1 + v3)
-    }
-    
-    term1 <- (1 / (tau * kappa_const + v3)) *
-      ((gamma(Rmpfr::mpfr(sum(x1[1:tau]) + tau * kappa_const + v1 + v3,
-                          precBits = 16)) *
-          gamma(Rmpfr::mpfr(sum(x2[1:tau]) + v2, precBits = 16))) /
-         gamma(Rmpfr::mpfr(sum(x2[1:tau]) + sum(x1[1:tau]) + tau * kappa_const +
-                             v1 + v2 + v3,
-                           precBits = 16))) *
-      prod(Rmpfr::mpfr(term_11, precBits = 16))
-    
-    for (j in 0:(sum(x1[(tau + 1):n]) + v1 - 2)) {
-      term_21[j + 1] <- (sum(x1[(tau + 1):n]) + v1 - 1 - j) /
-        (((n - tau) * kappa_const) + sum(x1[(tau + 1):n]) - 1 - j + v3)
-    }
-    
-    term2 <- (1 / ((n - tau) * kappa_const + v3)) *
-      ((gamma(Rmpfr::mpfr(sum(x1[(tau + 1):n]) + (n - tau) * kappa_const + v1 + v3,
-                          precBits = 16)) *
-          gamma(Rmpfr::mpfr(sum(x2[(tau + 1):n]) + v2, precBits = 16))) /
-         gamma(Rmpfr::mpfr(sum(x2[(tau + 1):n]) + sum(x1[(tau + 1):n]) +
-                             (n - tau) * kappa_const + v1 + v2 + v3,
-                           precBits = 16))) *
-      prod(Rmpfr::mpfr(term_21, precBits = 16))
-    
-    post_prob[tau] <- term1 * term2
-  }
-  
-  post_prob <- Rmpfr::mpfr2array(post_prob, dim = length(post_prob))
-  
-  if (sum(post_prob) > 0) {
-    post_prob <- as.numeric(post_prob / sum(post_prob))
-    cp_index <- which.max(post_prob)
-    
-    if (length(cp_index) > 0) {
-      if (cp_index == 1 || cp_index == 2 || cp_index == n || cp_index == (n - 1)) {
-        cp_status <- 0
-      }
-      return(data.frame(post_prob = max(post_prob), cp_index = cp_index, cp_status = cp_status))
-    }
-    
+  res <- bnb_singlecp_dirichlet_cpp(
+    x1 = as.numeric(x1),
+    x2 = as.numeric(x2),
+    v1 = v1,
+    v2 = v2,
+    v3 = v3,
+    kappa_const = kappa_const
+  )
+
+  if (is.na(res$cp_index) || is.na(res$max_post_prob)) {
     return(NA)
   }
-  
-  NA
+
+  data.frame(
+    post_prob = res$max_post_prob,
+    cp_index = res$cp_index,
+    cp_status = res$cp_status
+  )
 }
