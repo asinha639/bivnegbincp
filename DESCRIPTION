@@ -31,3 +31,4 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 NeedsCompilation: yes
+SystemRequirements: C++14
